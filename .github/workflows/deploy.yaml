@@ -3,7 +3,7 @@ name: Deploy to VPS
 on:
   push:
     branches:
-      - master  
+    - master
 
 jobs:
   deploy:
@@ -11,14 +11,11 @@ jobs:
 
     steps:
     - name: Checkout Repository
-      uses: actions/checkout@v3  # Mengambil kode dari repo
+      uses: actions/checkout@v3
 
     - name: Deploy to VPS
       env:
-        HOST: ${{ secrets.HOST }}  # Host atau IP dari VPS Anda
-        USER: ${{ secrets.USERNAME }}  # User SSH di VPS
-        KEY: ${{ secrets.SSH_KEY }}  # SSH Private Key yang terenkripsi sebagai secret
-      run: |
-          cd /test-action  # Ganti dengan direktori aplikasi di VPS
-          git pull origin master  # Menarik update dari branch main
-        EOF
+        HOST: ${{ secrets.HOST }}
+        USER: ${{ secrets.USERNAME }}
+        KEY: ${{ secrets.SSH_KEY }}
+      run: "echo \"$KEY\" > /tmp/deploy_key\nchmod 600 /tmp/deploy_key\nssh -o StrictHostKeyChecking=no -i /tmp/deploy_key $USER@$HOST << 'EOF'\n  cd /test-action  \n  git pull origin master \nEOF\n"
