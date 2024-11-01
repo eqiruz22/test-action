@@ -11,13 +11,21 @@ jobs:
 
     steps:
     - name: Checkout Repository
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.HOST }}
-        user: ${{ secrets.USERNAME }}
-        key: ${{ secrets.SSH_KEY }}
-        port: 22
-        script: |
+      uses: actions/checkout@v3
+
+    - name: Start SSH Agent and add key
+      env:
+        SSH_KEY: ${{ secrets.SSH_KEY }}
+      run: |
+        eval "$(ssh-agent -s)"
+        echo "$SSH_KEY" | tr -d '\r' | ssh-add -
+
+    - name: Deploy to VPS
+      env:
+        HOST: ${{ secrets.HOST }}
+        USER: ${{ secrets.USERNAME }}
+      run: |
+        ssh -o StrictHostKeyChecking=no $USER@$HOST << 'EOF'
           cd /test-action
           git pull origin master
-          git status
+        EOF
