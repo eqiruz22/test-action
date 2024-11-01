@@ -13,9 +13,19 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v3
 
+    - name: Start SSH Agent and add key
+      env:
+        SSH_KEY: ${{ secrets.SSH_KEY }}
+      run: |
+        eval "$(ssh-agent -s)"
+        echo "$SSH_KEY" | tr -d '\r' | ssh-add -
+
     - name: Deploy to VPS
       env:
         HOST: ${{ secrets.HOST }}
         USER: ${{ secrets.USERNAME }}
-        KEY: ${{ secrets.SSH_KEY }}
-      run: "echo \"$KEY\" > /tmp/deploy_key\nchmod 600 /tmp/deploy_key\nssh -o StrictHostKeyChecking=no -i /tmp/deploy_key $USER@$HOST << 'EOF'\n  cd /test-action  \n  git pull origin master \nEOF\n"
+      run: |
+        ssh -o StrictHostKeyChecking=no $USER@$HOST << 'EOF'
+          cd /test-action
+          git pull origin master
+        EOF
