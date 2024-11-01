@@ -18,6 +18,6 @@ jobs:
         key: ${{ secrets.SSH_KEY }}
         port: 22
         script: |
-          cd /test-action
+          cd /home/faisal/test-action
           git pull origin master
           git status
