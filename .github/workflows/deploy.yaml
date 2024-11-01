@@ -1,0 +1,24 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - master  
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3  # Mengambil kode dari repo
+
+    - name: Deploy to VPS
+      env:
+        HOST: ${{ secrets.HOST }}  # Host atau IP dari VPS Anda
+        USER: ${{ secrets.USERNAME }}  # User SSH di VPS
+        KEY: ${{ secrets.SSH_KEY }}  # SSH Private Key yang terenkripsi sebagai secret
+      run: |
+          cd /test-action  # Ganti dengan direktori aplikasi di VPS
+          git pull origin master  # Menarik update dari branch main
+        EOF
